@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileNinja - File Organization System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for Nothing OS consistency -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'nothing': {
+                            900: '#0A0A0B',
+                            800: '#101012',
+                            700: '#1A1A1D',
+                            600: '#252529',
+                            500: '#2F2F35',
+                            400: '#404047',
+                            300: '#6B6B73',
+                            200: '#9B9BA3',
+                            100: '#D1D1D6',
+                            50: '#F2F2F7'
+                        },
+                        'accent': {
+                            500: '#00D4FF',
+                            400: '#33DDFF',
+                            300: '#66E6FF',
+                            200: '#99EEFF',
+                            100: '#CCF7FF'
+                        }
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                linear-gradient(135deg, #0A0A0B 0%, #101012 50%, #1A1A1D 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Subtle noise overlay for Nothing OS authenticity */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(51, 221, 255, 0.01) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+            mix-blend-mode: overlay;
+            opacity: 0.3;
+        }
+
+        /* Enhanced Glass morphism effects */
+        .glass {
+            background: rgba(26, 26, 29, 0.7);
+            backdrop-filter: saturate(180%) blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass:hover {
+            backdrop-filter: saturate(180%) blur(28px);
+            border-color: rgba(0, 212, 255, 0.15);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(0, 212, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .glass-light {
+            background: rgba(37, 37, 41, 0.5);
+            backdrop-filter: saturate(150%) blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Enhanced glass with better blur and translucency */
+        .glass-enhanced {
+            background: rgba(26, 26, 29, 0.6);
+            backdrop-filter: saturate(200%) blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-enhanced:hover {
+            backdrop-filter: saturate(200%) blur(16px);
+            border-color: rgba(0, 212, 255, 0.2);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.5),
+                0 0 24px rgba(0, 212, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .glass-header {
+            background: rgba(26, 26, 29, 0.85);
+            backdrop-filter: saturate(180%) blur(32px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        /* Enhanced Glow effects */
+        .glow-accent {
+            box-shadow: 
+                0 0 20px rgba(0, 212, 255, 0.4),
+                0 0 40px rgba(0, 212, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .glow-soft {
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.4),
+                0 1px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .glow-neon {
+            box-shadow: 
+                0 0 10px rgba(0, 212, 255, 0.6),
+                0 0 20px rgba(0, 212, 255, 0.4),
+                0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        /* Advanced Animations */
+        .animate-fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-scale-in {
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-slide-fade {
+            animation: slideFade 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-counter {
+            animation: counterUp 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                filter: blur(4px);
+            }
+            to { 
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes scaleIn {
+            from { 
+                opacity: 0;
+                transform: scale(0.9) translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes slideFade {
+            from {
+                opacity: 0;
+                transform: translateX(-20px) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) translateY(0);
+            }
+        }
+
+        @keyframes counterUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Ninja-specific animations */
+        .ninja-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ninja-hover:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.6),
+                0 0 32px rgba(0, 212, 255, 0.2);
+        }
+
+        .ninja-spin {
+            animation: ninjaFloat 3s ease-in-out infinite;
+        }
+
+        .ninja-spin:hover {
+            animation: ninjaSpin 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        .ninja-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ninja-btn:hover {
+            transform: translateX(4px);
+            text-shadow: 0 0 8px currentColor;
+        }
+
+        .ninja-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .ninja-btn:hover::before {
+            left: 100%;
+        }
+
+        @keyframes ninjaFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(2deg); }
+        }
+
+        @keyframes ninjaSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 16px rgba(34, 197, 94, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Nothing OS Tooltips */
+        .ninja-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .ninja-tooltip-content {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 26, 29, 0.95);
+            backdrop-filter: saturate(200%) blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            min-width: 220px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                0 0 20px rgba(0, 212, 255, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .ninja-tooltip:hover .ninja-tooltip-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        .ninja-tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(26, 26, 29, 0.95);
+        }
+
+        /* Enhanced Action Cards */
+        .ninja-action-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ninja-action-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Nothing OS Level Indicators */
+        .ninja-level-indicator {
+            background: linear-gradient(135deg, #00D4FF, #0099CC);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        /* Zero score pulsing effect */
+        .pulsing-zero {
+            animation: pulseZero 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseZero {
+            0%, 100% { 
+                color: #6B6B73;
+                text-shadow: none;
+            }
+            50% { 
+                color: #00D4FF;
+                text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            }
+        }
+
+        /* Enhanced visual hierarchy */
+        .primary-card {
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(0, 212, 255, 0.15);
+        }
+
+        .quick-win-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .quick-win-card:hover {
+            transform: translateX(8px);
+            border-color: rgba(0, 212, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Visual hierarchy enhancements */
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: rgb(156, 163, 175);
+            margin-top: 0.5rem;
+        }
+
+        .hero-cta {
+            background: linear-gradient(135deg, rgb(0, 212, 255), rgb(59, 130, 246));
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin-top: 1.5rem;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: rgb(0, 212, 255);
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: rgb(156, 163, 175);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Connection status improvements */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgb(34, 197, 94);
+            animation: pulse 2s infinite;
+        }
+
+        .connection-text {
+            color: rgb(156, 163, 175);
+        }
+
+        .connection-detail {
+            color: rgb(0, 212, 255);
+            font-weight: 500;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* File thumbnails styling */
+        .thumbnail-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .thumbnail-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Enhanced micro-interactions */
+        .ninja-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ninja-hover:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .glass-enhanced {
+            background: rgba(26, 26, 29, 0.8);
+            backdrop-filter: saturate(150%) blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glow-soft {
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .impact-high { border-left-color: #ef4444; }
+        .impact-medium { border-left-color: #f59e0b; }
+        .impact-low { border-left-color: #10b981; }
+
+        /* Tab System - Nothing OS Style */
+        .tab-container {
+            background: rgba(26, 26, 29, 0.6);
+            backdrop-filter: saturate(180%) blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.6s;
+        }
+
+        .tab-btn:hover::before {
+            left: 100%;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 
+                0 0 15px rgba(0, 212, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* Enhanced Card Effects */
+        .stat-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(37, 37, 41, 0.7);
+            backdrop-filter: saturate(200%) blur(24px);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-card .stat-number {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .stat-number {
+            transform: scale(1.1);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Action button enhancements */
+        .action-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, transparent 70%);
+            transition: all 0.6s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .action-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(0, 212, 255, 0.15);
+        }
+
+        /* Brand glow effect */
+        .brand-glow {
+            background: linear-gradient(135deg, #00D4FF 0%, #33DDFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.3));
+        }
+            from { 
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(26, 26, 29, 0.4);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.5);
+        }
+
+        /* File icons with glow */
+        .file-icon {
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4));
+            transition: all 0.3s ease;
+        }
+
+        .file-card:hover .file-icon {
+            filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.6));
+            transform: scale(1.1);
+        }
+
+        /* Status pulse animation */
+        .status-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Loading shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Floating particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(0, 212, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-nothing-900 text-white min-h-screen font-inter">
+    <!-- Floating particles background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <header class="glass-header border-b border-white/5 sticky top-0 z-50 animate-fade-in">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-accent-500 to-accent-300 flex items-center justify-center glow-neon">
+                        <span class="text-xl font-bold">🥷</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold brand-glow">FileNinja</h1>
+                        <p class="text-xs text-nothing-300">Intelligent Organization</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2">
+                        <div id="status-indicator" class="w-2 h-2 bg-accent-500 rounded-full status-pulse"></div>
+                        <div class="flex flex-col">
+                            <span id="status-text" class="text-sm text-nothing-200">Local System</span>
+                            <span id="connection-detail" class="text-xs text-nothing-400">Active monitoring</span>
+                        </div>
+                    </div>
+                    <div class="w-px h-8 bg-white/10"></div>
+                    <div class="text-center">
+                        <div class="text-sm text-nothing-300" id="file-count">0 files</div>
+                        <div class="text-xs text-nothing-500">organized</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- Navigation Tabs -->
+        <div class="relative mb-8 animate-slide-up" style="animation-delay: 0.1s;">
+            <div class="flex space-x-1 tab-container p-1 rounded-2xl w-fit">
+                <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn active px-6 py-3 rounded-xl font-medium text-sm border border-transparent text-accent-500">
+                    <span class="flex items-center space-x-2 relative z-10">
+                        <span>📊</span>
+                        <span>Dashboard</span>
+                    </span>
+                </button>
+                <button onclick="showTab('files')" id="tab-files" class="tab-btn px-6 py-3 rounded-xl font-medium text-sm border border-transparent text-nothing-300 hover:text-white">
+                    <span class="flex items-center space-x-2 relative z-10">
+                        <span>📁</span>
+                        <span>File Browser</span>
+                    </span>
+                </button>
+                <button onclick="showTab('logs')" id="tab-logs" class="tab-btn px-6 py-3 rounded-xl font-medium text-sm border border-transparent text-nothing-300 hover:text-white">
+                    <span class="flex items-center space-x-2 relative z-10">
+                        <span>📋</span>
+                        <span>Activity</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-content" class="tab-content animate-fade-in">
+            <!-- Quick Wins Hero Section -->
+            <div id="quick-wins-section" class="mb-8 animate-slide-up">
+                <div class="glass-enhanced rounded-2xl p-6 border-l-4 border-accent-500 relative overflow-hidden glow-accent">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent-500/10 to-transparent rounded-bl-full"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 class="text-xl font-medium text-white mb-1">Ready to level up?</h2>
+                                <p class="text-nothing-400 text-sm font-light">Quick actions to boost your ninja score</p>
+                            </div>
+                            <div class="text-accent-500 ninja-spin">
+                                <i data-lucide="target" class="w-8 h-8"></i>
+                            </div>
+                        </div>
+                        <div id="quick-wins-list" class="space-y-3">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Thumbnails & Preview Section -->
+            <div class="glass rounded-xl p-6 border border-nothing-700 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white flex items-center space-x-2">
+                        <i data-lucide="image" class="w-5 h-5 text-accent-400"></i>
+                        <span>Recent Files</span>
+                    </h3>
+                    <button onclick="refreshThumbnails()" class="text-accent-400 hover:text-accent-300 transition-colors">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div id="file-thumbnails" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <!-- Thumbnails populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Enhanced Stats Cards - Reduced padding -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="stat-card glass-enhanced rounded-2xl p-4 glow-soft animate-scale-in ninja-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <p class="text-nothing-400 text-sm font-light tracking-wide">NINJA SCORE</p>
+                                <div class="ninja-tooltip">
+                                    <i data-lucide="help-circle" class="w-4 h-4 text-nothing-500 cursor-help"></i>
+                                    <div class="ninja-tooltip-content">
+                                        <div class="text-white text-sm font-medium mb-2">How Ninja Score Works</div>
+                                        <div class="space-y-1 text-nothing-300 text-xs">
+                                            <div>• Organized files: +10 points each</div>
+                                            <div>• Clean categories: +5 bonus</div>
+                                            <div>• No duplicates: +20 bonus</div>
+                                            <div>• Recent activity: +5 points</div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-nothing-600">
+                                            <div class="text-accent-400 text-xs font-medium">
+                                                <span id="ninja-level">Apprentice</span> Level
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="ninja-score" class="stat-number text-3xl font-thin text-accent-500 mt-1 animate-counter">0</p>
+                            <p class="text-accent-400 text-xs font-light mt-1">Organization level</p>
+                        </div>
+                        <div class="text-accent-500 ninja-spin">
+                            <i data-lucide="zap" class="w-8 h-8"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card glass-enhanced rounded-2xl p-4 glow-soft animate-scale-in ninja-hover" style="animation-delay: 0.1s;">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-nothing-400 text-sm font-medium">Total Files</p>
+                            <p id="total-files" class="stat-number text-2xl font-bold text-white mt-1 animate-counter">0</p>
+                            <p id="today-files-inline" class="text-accent-400 text-xs mt-1">+0 today</p>
+                        </div>
+                        <div class="text-3xl file-icon">�</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card glass-enhanced rounded-2xl p-4 glow-soft animate-scale-in ninja-hover" style="animation-delay: 0.2s;">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-nothing-400 text-sm font-medium">Categories</p>
+                            <p id="file-types" class="stat-number text-2xl font-bold text-white mt-1 animate-counter">0</p>
+                            <p class="text-accent-400 text-xs mt-1">File types</p>
+                        </div>
+                        <div class="text-3xl file-icon">🗂️</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card glass-enhanced rounded-2xl p-4 glow-soft animate-scale-in ninja-hover" style="animation-delay: 0.3s;">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-nothing-400 text-sm font-medium">Health</p>
+                            <p id="file-health" class="stat-number text-2xl font-bold text-green-400 mt-1">Good</p>
+                            <p class="text-accent-400 text-xs mt-1">File status</p>
+                        </div>
+                        <div class="text-3xl file-icon pulse-glow">💚</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real Usefulness Widgets -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Storage by Category -->
+                <div class="glass-enhanced rounded-2xl p-5 animate-slide-up" style="animation-delay: 0.4s;">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white flex items-center">
+                            <span class="mr-2">💾</span>Storage by Category
+                        </h3>
+                        <span class="text-nothing-400 text-sm">MB</span>
+                    </div>
+                    <div id="storage-categories" class="space-y-3">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Largest Files -->
+                <div class="glass-enhanced rounded-2xl p-5 animate-slide-up" style="animation-delay: 0.5s;">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white flex items-center">
+                            <span class="mr-2">📊</span>Largest Files
+                        </h3>
+                        <button onclick="cleanupLargeFiles()" class="text-accent-500 hover:text-accent-400 text-sm ninja-btn">
+                            Clean Up
+                        </button>
+                    </div>
+                    <div id="largest-files" class="space-y-2">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ninja Actions Panel (Collapsible) -->
+            <div class="ninja-actions-panel mb-6">
+                <button onclick="toggleNinjaActions()" class="w-full glass-enhanced rounded-2xl p-4 text-left animate-slide-up ninja-hover" style="animation-delay: 0.6s;">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl ninja-spin">⚡</span>
+                            <div>
+                                <h3 class="text-lg font-semibold text-white">Ninja Actions</h3>
+                                <p class="text-nothing-400 text-sm">Smart cleanup and organization tools</p>
+                            </div>
+                        </div>
+                        <div id="ninja-actions-arrow" class="text-nothing-400 transition-transform duration-300">▼</div>
+                    </div>
+                </button>
+                
+                <div id="ninja-actions-content" class="hidden mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in">
+                    <div class="ninja-action-card">
+                        <button onclick="smartClean()" class="action-btn glass-enhanced rounded-xl p-4 border border-red-500/20 btn-press ninja-hover w-full text-left">
+                            <div class="text-red-400 mb-2">
+                                <i data-lucide="trash-2" class="w-6 h-6"></i>
+                            </div>
+                            <div class="text-white font-medium text-sm mb-1">Smart Clean</div>
+                            <div class="text-nothing-400 text-xs font-light mb-2 leading-relaxed">Detects duplicate files and helps you decide what to delete</div>
+                            <div class="text-red-400 text-xs font-medium">⚠️ Safe deletion with confirmation</div>
+                        </button>
+                    </div>
+                    <button onclick="autoOrganize()" class="action-btn glass-enhanced rounded-xl p-4 border border-cyan-500/20 btn-press ninja-hover">
+                        <div class="text-2xl mb-2 file-icon ninja-spin">🎯</div>
+                        <div class="text-white font-medium">Auto Organize</div>
+                        <div class="text-nothing-400 text-sm">Batch organization</div>
+                    </button>
+                    <button onclick="findFiles()" class="action-btn glass-enhanced rounded-xl p-4 border border-purple-500/20 btn-press ninja-hover">
+                        <div class="text-2xl mb-2 file-icon ninja-spin">�</div>
+                        <div class="text-white font-medium">Find Files</div>
+                        <div class="text-nothing-400 text-sm">AI-powered search</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recently Accessed -->
+            <div class="glass-enhanced rounded-2xl p-5 animate-slide-up" style="animation-delay: 0.7s;">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white flex items-center">
+                        <span class="mr-2">⏰</span>Recently Accessed
+                    </h3>
+                    <button onclick="showTab('logs')" class="text-accent-500 hover:text-accent-400 text-sm ninja-btn">
+                        View All
+                    </button>
+                </div>
+                <div id="recent-files" class="space-y-2">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+
+        <!-- File Browser Tab -->
+        <div id="files-content" class="tab-content hidden">
+            <div class="glass rounded-2xl p-6 animate-fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-4">
+                        <h2 class="text-xl font-bold text-white">📁 Organized Files</h2>
+                        <div id="current-path" class="text-nothing-300 text-sm bg-nothing-700/50 px-3 py-1 rounded-lg backdrop-blur-sm">
+                            /Organized_Files
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="refreshFiles()" class="px-4 py-2 bg-accent-500/10 text-accent-500 rounded-lg hover:bg-accent-500/20 border border-accent-500/20 transition-all duration-300 backdrop-blur-sm">
+                            🔄 Refresh
+                        </button>
+                        <button onclick="goBack()" class="px-4 py-2 bg-nothing-600/50 text-white rounded-lg hover:bg-nothing-600/70 border border-white/10 transition-all duration-300 backdrop-blur-sm">
+                            ⬅️ Back
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- File Grid -->
+                <div id="file-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <div class="text-center py-8 col-span-full text-nothing-300">
+                        <div class="shimmer rounded-lg h-8 w-32 mx-auto mb-2"></div>
+                        <div class="text-sm">Loading files...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Logs Tab -->
+        <div id="logs-content" class="tab-content hidden">
+            <div class="glass rounded-2xl p-6 animate-fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-white">Recent File Movements</h2>
+                    <button onclick="refreshData()" class="px-4 py-2 bg-accent-500/10 text-accent-500 rounded-lg hover:bg-accent-500/20 border border-accent-500/20 transition-all duration-300 backdrop-blur-sm">
+                        🔄 Refresh
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/10">
+                                <th class="text-left py-3 px-4 text-nothing-300 font-medium">File Name</th>
+                                <th class="text-left py-3 px-4 text-nothing-300 font-medium">Type</th>
+                                <th class="text-left py-3 px-4 text-nothing-300 font-medium">Size</th>
+                                <th class="text-left py-3 px-4 text-nothing-300 font-medium">Tags</th>
+                                <th class="text-left py-3 px-4 text-nothing-300 font-medium">Moved At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="file-logs">
+                            <tr>
+                                <td colspan="5" class="text-center py-8 text-nothing-300">
+                                    <div class="shimmer rounded-lg h-6 w-48 mx-auto mb-2"></div>
+                                    <div class="text-sm">Loading file logs...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentPath = 'Organized_Files';
+        let pathHistory = ['Organized_Files'];
+
+        // Enhanced particles background
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = window.innerWidth > 768 ? 25 : 10; // Fewer on mobile
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random size and position
+                const size = Math.random() * 3 + 1;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                
+                // Random animation delay and duration
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                
+                // Alternate colors
+                if (i % 3 === 0) {
+                    particle.style.background = 'rgba(255, 255, 255, 0.1)';
+                } else if (i % 3 === 1) {
+                    particle.style.background = 'rgba(0, 212, 255, 0.3)';
+                } else {
+                    particle.style.background = 'rgba(51, 221, 255, 0.2)';
+                }
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Tab Management with smooth transitions
+        function showTab(tabName) {
+            // Fade out current tab
+            const currentTab = document.querySelector('.tab-content:not(.hidden)');
+            if (currentTab) {
+                currentTab.style.opacity = '0';
+                currentTab.style.transform = 'translateY(10px)';
+                
+                setTimeout(() => {
+                    currentTab.classList.add('hidden');
+                    
+                    // Show new tab
+                    const newTab = document.getElementById(`${tabName}-content`);
+                    newTab.classList.remove('hidden');
+                    newTab.style.opacity = '0';
+                    newTab.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        newTab.style.opacity = '1';
+                        newTab.style.transform = 'translateY(0)';
+                    }, 50);
+                }, 150);
+            } else {
+                // First time loading
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`${tabName}-content`).classList.remove('hidden');
+            }
+            
+            // Update tab buttons with enhanced styling
+            document.querySelectorAll('.tab-btn').forEach(tab => {
+                tab.classList.remove('active');
+                tab.style.background = 'transparent';
+                tab.style.border = '1px solid transparent';
+                tab.style.transform = 'translateY(0)';
+                tab.style.boxShadow = 'none';
+            });
+            
+            // Activate selected tab button
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            activeTab.classList.add('active');
+            
+            // Load data based on tab with enhanced effects
+            if (tabName === 'dashboard') {
+                fetchStatsWithAnimation();
+            } else if (tabName === 'files') {
+                refreshFiles();
+            } else if (tabName === 'logs') {
+                fetchLogs();
+            }
+        }
+
+        // Enhanced stats fetching with counter animation
+        async function fetchStatsWithAnimation() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                
+                // Animate counters
+                animateCounter('total-files', stats.total_files || 0);
+                animateCounter('file-types', stats.by_type?.length || 0);
+                
+                // Calculate today's files
+                const today = new Date().toISOString().split('T')[0];
+                const todayCount = stats.recent_activity?.find(a => a.date === today)?.count || 0;
+                animateCounter('today-files', todayCount);
+                
+                // Update file count in header
+                document.getElementById('file-count').textContent = `${stats.total_files || 0} files`;
+                
+                // Update connection info and quick wins
+                updateConnectionInfo(stats.connection_info);
+                updateQuickWins(stats.quick_wins || []);
+                
+                // Update file thumbnails
+                refreshThumbnails();
+                
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        // Counter animation function
+        function animateCounter(elementId, targetValue, duration = 1000) {
+            const element = document.getElementById(elementId);
+            const startValue = parseInt(element.textContent) || 0;
+            const startTime = performance.now();
+            
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+                const currentValue = Math.round(startValue + (targetValue - startValue) * easeOutCubic);
+                
+                element.textContent = currentValue;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                }
+            }
+            
+            requestAnimationFrame(updateCounter);
+        }
+
+        // File Browser Functions
+        async function fetchFiles(path = 'Organized_Files') {
+            try {
+                const response = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayFiles(data.files, data.folders);
+                    document.getElementById('current-path').textContent = `/${path}`;
+                    currentPath = path;
+                } else {
+                    document.getElementById('file-grid').innerHTML = `
+                        <div class="col-span-full text-center py-8 text-red-400">
+                            <div class="text-4xl mb-2">⚠️</div>
+                            <div>Error: ${data.error || 'Failed to load files'}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error fetching files:', error);
+                document.getElementById('file-grid').innerHTML = `
+                    <div class="col-span-full text-center py-8 text-red-400">
+                        <div class="text-4xl mb-2">⚠️</div>
+                        <div>Error loading files</div>
+                    </div>
+                `;
+            }
+        }
+
+        function displayFiles(files, folders) {
+            const grid = document.getElementById('file-grid');
+            
+            if (files.length === 0 && folders.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-nothing-300">
+                        <div class="text-6xl mb-4 opacity-50">📂</div>
+                        <div class="text-lg mb-2">This folder is empty</div>
+                        <div class="text-sm opacity-70">Files will appear here after organization</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            
+            // Add folders first
+            folders.forEach((folder, index) => {
+                html += `
+                    <div onclick="openFolder('${folder.name}')" class="file-card glass-light rounded-xl p-4 hover:glow-accent cursor-pointer transition-all duration-300 group animate-scale-in" style="animation-delay: ${index * 0.05}s;">
+                        <div class="text-center">
+                            <div class="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300 file-icon">📁</div>
+                            <div class="text-white text-sm font-medium truncate mb-1">${folder.name}</div>
+                            <div class="text-nothing-400 text-xs">${folder.count} items</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Add files
+            files.forEach((file, index) => {
+                const icon = getFileIcon(file.extension);
+                html += `
+                    <div onclick="openFile('${file.path}')" class="file-card glass-light rounded-xl p-4 hover:glow-accent cursor-pointer transition-all duration-300 group animate-scale-in" style="animation-delay: ${(folders.length + index) * 0.05}s;">
+                        <div class="text-center">
+                            <div class="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300 file-icon">${icon}</div>
+                            <div class="text-white text-sm font-medium truncate mb-1" title="${file.name}">${file.name}</div>
+                            <div class="text-nothing-400 text-xs mb-1">${formatFileSize(file.size)}</div>
+                            <div class="text-accent-400 text-xs">${formatDate(file.modified)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+
+        function getFileIcon(extension) {
+            const icons = {
+                'pdf': '📄',
+                'doc': '�', 'docx': '�', 'txt': '�', 'rtf': '�', 'odt': '�',
+                'xls': '📊', 'xlsx': '📊', 'csv': '📊', 'ppt': '📊', 'pptx': '📊',
+                'jpg': '�️', 'jpeg': '�️', 'png': '�️', 'gif': '�️', 'bmp': '�️', 'svg': '�️', 'webp': '�️', 'tiff': '�️'
+            };
+            return icons[extension?.toLowerCase()] || '📄';
+        }
+
+        function openFolder(folderName) {
+            const newPath = currentPath === 'Organized_Files' ? 
+                `Organized_Files/${folderName}` : 
+                `${currentPath}/${folderName}`;
+            
+            pathHistory.push(currentPath);
+            fetchFiles(newPath);
+        }
+
+        function openFile(filePath) {
+            // Open file using system default application
+            fetch('/api/open-file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({path: filePath})
+            }).then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    showNotification('Could not open file: ' + (data.error || 'Unknown error'), 'error');
+                } else {
+                    showNotification('File opened successfully!', 'success');
+                }
+            }).catch(error => {
+                console.error('Error opening file:', error);
+                showNotification('Error opening file', 'error');
+            });
+        }
+
+        function goBack() {
+            if (pathHistory.length > 1) {
+                pathHistory.pop();
+                const previousPath = pathHistory[pathHistory.length - 1] || 'Organized_Files';
+                fetchFiles(previousPath);
+            } else {
+                fetchFiles('Organized_Files');
+            }
+        }
+
+        function refreshFiles() {
+            fetchFiles(currentPath);
+        }
+
+        // API Functions
+        async function fetchStats() {
+            await fetchStatsWithAnimation();
+        }
+
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                const data = await response.json();
+                const logs = data.logs || [];
+                
+                const tbody = document.getElementById('file-logs');
+                
+                if (logs.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center py-12 text-nothing-300">
+                                <div class="text-4xl mb-2 opacity-50">📝</div>
+                                <div class="text-lg mb-2">No file movements recorded yet</div>
+                                <div class="text-sm opacity-70">Try adding some files to your Downloads folder!</div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = logs.map((log, index) => `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors duration-200 animate-fade-in" style="animation-delay: ${index * 0.05}s;">
+                        <td class="py-4 px-4 text-white font-medium">${log.original_name}</td>
+                        <td class="py-4 px-4">
+                            <span class="px-2 py-1 bg-accent-500/10 text-accent-400 rounded-md text-sm border border-accent-500/20">
+                                ${log.file_type}
+                            </span>
+                        </td>
+                        <td class="py-4 px-4 text-nothing-300">${formatFileSize(log.file_size)}</td>
+                        <td class="py-4 px-4">
+                            ${log.tags.map(tag => `
+                                <span class="px-2 py-1 bg-nothing-600/50 text-nothing-200 rounded-md text-xs mr-1 border border-white/10">
+                                    ${tag}
+                                </span>
+                            `).join('')}
+                        </td>
+                        <td class="py-4 px-4 text-nothing-300">${formatDate(log.moved_at)}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error fetching logs:', error);
+                document.getElementById('file-logs').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-red-400">
+                            <div class="text-4xl mb-2">⚠️</div>
+                            <div>Error loading file logs</div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Utility Functions
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function refreshData() {
+            fetchStats();
+            fetchLogs();
+            showNotification('Data refreshed successfully!', 'success');
+        }
+
+        // Enhanced stats fetching with new widgets
+        function fetchStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Stats error:', data.error);
+                        return;
+                    }
+                    
+                    // Update main stats with enhanced counter
+                    updateStatCounter('total-files', data.total_files || 0);
+                    updateStatCounter('ninja-score', data.ninja_score || 0);
+                    updateStatCounter('file-types', Object.keys(data.storage_by_category || {}).length);
+                    
+                    // Update connection info
+                    if (data.connection_info) {
+                        document.getElementById('status-text').textContent = data.connection_info.type;
+                        document.getElementById('connection-detail').textContent = data.connection_info.status;
+                    }
+                    
+                    // Update quick wins
+                    updateQuickWins(data.quick_wins || []);
+                    
+                    // Check if zero score needs pulsing
+                    const scoreElement = document.getElementById('ninja-score');
+                    if (data.ninja_score === 0) {
+                        scoreElement.classList.add('pulsing-zero');
+                    } else {
+                        scoreElement.classList.remove('pulsing-zero');
+                    }
+                    
+                    // Update today's files inline
+                    const todayElement = document.getElementById('today-files-inline');
+                    if (todayElement) {
+                        todayElement.textContent = `+${data.today_files || 0} today`;
+                    }
+                    
+                    // Update file health
+                    const healthElement = document.getElementById('file-health');
+                    if (healthElement && data.file_health) {
+                        const health = data.file_health;
+                        const score = calculateHealthScore(health);
+                        healthElement.textContent = score.text;
+                        healthElement.className = `stat-number text-2xl font-bold ${score.color} mt-1`;
+                    }
+                    
+                    // Update storage by category widget
+                    updateStorageCategories(data.storage_by_category || {});
+                    
+                    // Update largest files widget
+                    updateLargestFiles(data.largest_files || []);
+                    
+                    // Update recently accessed files
+                    updateRecentFiles(data.recently_accessed || []);
+                })
+                .catch(error => {
+                    console.error('Error fetching stats:', error);
+                    showNotification('Failed to fetch statistics', 'error');
+                });
+        }
+
+        function calculateHealthScore(health) {
+            const issues = health.large_files + health.old_files + health.duplicates;
+            if (issues === 0) return { text: 'Perfect', color: 'text-green-400' };
+            if (issues < 5) return { text: 'Good', color: 'text-green-400' };
+            if (issues < 15) return { text: 'Fair', color: 'text-yellow-400' };
+            return { text: 'Needs Work', color: 'text-red-400' };
+        }
+
+        function updateStorageCategories(categories) {
+            const container = document.getElementById('storage-categories');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            // If no data, show intelligent placeholder
+            if (!categories || Object.keys(categories).length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 space-y-3">
+                        <div class="text-nothing-500">
+                            <i data-lucide="folder-plus" class="w-8 h-8 mx-auto mb-2"></i>
+                        </div>
+                        <div class="text-nothing-400 text-sm font-light">No organized files yet</div>
+                        <button onclick="autoOrganize()" class="text-accent-500 hover:text-accent-400 text-xs font-medium transition-colors">
+                            Start organizing files →
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            
+            // Sort by size and show data
+            const sortedCategories = Object.entries(categories)
+                .sort(([,a], [,b]) => b.size_mb - a.size_mb)
+                .slice(0, 5);
+            
+            sortedCategories.forEach(([category, data], index) => {
+                const percentage = Math.max(10, (data.size_mb / Math.max(...sortedCategories.map(([,d]) => d.size_mb))) * 100);
+                const bar = document.createElement('div');
+                bar.className = 'space-y-2 animate-slide-up';
+                bar.style.animationDelay = `${index * 0.1}s`;
+                bar.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 rounded-full bg-accent-500 opacity-80"></div>
+                            <span class="text-white text-sm font-light">${category}</span>
+                            <span class="text-nothing-500 text-xs">${data.files} files</span>
+                        </div>
+                        <div class="text-nothing-300 text-sm font-light">${data.size_mb} MB</div>
+                    </div>
+                    <div class="w-full bg-nothing-700 rounded-full h-1 overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-accent-500 to-accent-400 rounded-full transition-all duration-1000 ease-out" 
+                             style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                container.appendChild(bar);
+            });
+        }
+
+        function updateLargestFiles(files) {
+            const container = document.getElementById('largest-files');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            files.slice(0, 5).forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 glass-light rounded-lg hover:bg-white/5 cursor-pointer transition-colors';
+                item.onclick = () => openFile(file.path);
+                
+                const sizeText = formatFileSize(file.size);
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2 flex-1 min-w-0">
+                        <div class="text-sm">📄</div>
+                        <span class="text-white text-sm truncate">${file.name}</span>
+                    </div>
+                    <div class="text-nothing-300 text-xs">${sizeText}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateRecentFiles(files) {
+            const container = document.getElementById('recent-files');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (files.length === 0) {
+                container.innerHTML = '<div class="text-nothing-400 text-sm">No recent activity</div>';
+                return;
+            }
+            
+            files.slice(0, 3).forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center space-x-3 p-2 glass-light rounded-lg hover:bg-white/5 cursor-pointer transition-colors';
+                
+                const fileName = typeof file === 'string' ? file : (file.filename || file.name || 'Unknown');
+                item.innerHTML = `
+                    <div class="text-accent-500">⏰</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-white text-sm truncate">${fileName}</div>
+                        <div class="text-nothing-400 text-xs">Recently accessed</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Ninja Actions
+        function toggleNinjaActions() {
+            const content = document.getElementById('ninja-actions-content');
+            const arrow = document.getElementById('ninja-actions-arrow');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function smartClean() {
+            showNotification('🧹 Smart cleanup initiated! Scanning for duplicates...', 'info');
+            // TODO: Implement smart cleanup
+        }
+
+        function autoOrganize() {
+            fetch('/api/organize', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('🎯 Auto-organization started!', 'success');
+                    } else {
+                        showNotification('Failed to start organization', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error starting organization', 'error');
+                });
+        }
+
+        function findFiles() {
+            showNotification('🔍 AI-powered file search coming soon!', 'info');
+            // TODO: Implement AI search
+        }
+
+        function cleanupLargeFiles() {
+            showNotification('🗂️ Large file cleanup tools coming soon!', 'info');
+            // TODO: Implement large file cleanup
+        }
+
+        // Quick Wins functionality
+        function updateQuickWins(quickWins) {
+            const container = document.getElementById('quick-wins-list');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (!quickWins || quickWins.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="text-green-400 mb-2">
+                            <i data-lucide="check-circle" class="w-8 h-8 mx-auto"></i>
+                        </div>
+                        <div class="text-white font-medium">All caught up!</div>
+                        <div class="text-nothing-400 text-sm">Your file system is well organized.</div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+            
+            quickWins.forEach((win, index) => {
+                const winCard = document.createElement('div');
+                winCard.className = `quick-win-card glass-light rounded-lg p-4 border-l-4 border-${win.impact === 'high' ? 'red' : win.impact === 'medium' ? 'yellow' : 'green'}-500 animate-slide-up`;
+                winCard.style.animationDelay = `${index * 0.1}s`;
+                winCard.onclick = () => executeQuickWin(win.action);
+                
+                winCard.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="text-white font-medium text-sm">${win.title}</span>
+                                <span class="px-2 py-1 text-xs rounded-full ${
+                                    win.impact === 'high' ? 'bg-red-500/20 text-red-400' :
+                                    win.impact === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-green-500/20 text-green-400'
+                                }">${win.impact} impact</span>
+                            </div>
+                            <div class="text-nothing-400 text-sm">${win.description}</div>
+                            <div class="text-accent-400 text-xs mt-1">⏱️ ${win.time}</div>
+                        </div>
+                        <div class="text-accent-500 ml-4">
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(winCard);
+            });
+            
+            lucide.createIcons();
+        }
+
+        function executeQuickWin(action) {
+            switch(action) {
+                case 'cleanup_large':
+                    cleanupLargeFiles();
+                    break;
+                case 'auto_organize':
+                    autoOrganize();
+                    break;
+                case 'onboarding':
+                    showOnboarding();
+                    break;
+                default:
+                    showNotification('Action not implemented yet', 'info');
+            }
+        }
+
+        function showOnboarding() {
+            showNotification('👋 Welcome! Drop files into the organized folder to get started!', 'info', 5000);
+            // TODO: Show interactive tutorial
+        }
+
+        // File thumbnails functionality
+        async function refreshThumbnails() {
+            const container = document.getElementById('file-thumbnails');
+            if (!container) return;
+            
+            // Show loading state
+            container.innerHTML = Array.from({length: 6}, (_, i) => `
+                <div class="thumbnail-card animate-pulse">
+                    <div class="aspect-square bg-nothing-800 rounded-lg mb-2"></div>
+                    <div class="h-3 bg-nothing-800 rounded mb-1"></div>
+                    <div class="h-2 bg-nothing-800 rounded w-2/3"></div>
+                </div>
+            `).join('');
+            
+            try {
+                const response = await fetch('/api/recent-files');
+                const files = await response.json();
+                
+                container.innerHTML = '';
+                
+                if (files.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-8 text-nothing-400">
+                            <div class="text-4xl mb-2">📁</div>
+                            <div>No recent files to show</div>
+                            <div class="text-sm text-nothing-500 mt-1">Start organizing files to see them here</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                files.slice(0, 12).forEach((file, index) => {
+                    const thumbnail = document.createElement('div');
+                    thumbnail.className = 'thumbnail-card animate-slide-up';
+                    thumbnail.style.animationDelay = `${index * 0.05}s`;
+                    thumbnail.onclick = () => openFileLocation(file.path);
+                    
+                    const icon = getFileIcon(file.extension);
+                    const size = formatFileSize(file.size);
+                    
+                    thumbnail.innerHTML = `
+                        <div class="aspect-square bg-gradient-to-br from-nothing-800 to-nothing-900 rounded-lg flex items-center justify-center mb-2 group-hover:from-accent-900 group-hover:to-accent-800 transition-all duration-300">
+                            <i data-lucide="${icon}" class="w-8 h-8 text-accent-400"></i>
+                        </div>
+                        <div class="text-xs text-white font-medium truncate" title="${file.name}">${file.name}</div>
+                        <div class="text-xs text-nothing-400">${size}</div>
+                    `;
+                    
+                    container.appendChild(thumbnail);
+                });
+                
+                lucide.createIcons();
+                
+            } catch (error) {
+                console.error('Error loading thumbnails:', error);
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-red-400">
+                        <div class="text-2xl mb-2">⚠️</div>
+                        <div>Failed to load recent files</div>
+                    </div>
+                `;
+            }
+        }
+
+        function getFileIcon(extension) {
+            const iconMap = {
+                // PDFs
+                'pdf': 'file-text',
+                // Documents (including spreadsheets and presentations)
+                'doc': 'file-text',
+                'docx': 'file-text',
+                'txt': 'file-text',
+                'rtf': 'file-text',
+                'odt': 'file-text',
+                'xls': 'spreadsheet',
+                'xlsx': 'spreadsheet',
+                'csv': 'spreadsheet',
+                'ppt': 'presentation',
+                'pptx': 'presentation',
+                // Images
+                'jpg': 'image',
+                'jpeg': 'image',
+                'png': 'image',
+                'gif': 'image',
+                'svg': 'image',
+                'bmp': 'image',
+                'webp': 'image',
+                'tiff': 'image',
+                // Everything else (Other category)
+                'mp4': 'file',
+                'avi': 'file',
+                'mov': 'file',
+                'mp3': 'file',
+                'wav': 'file',
+                'zip': 'file',
+                'rar': 'file',
+                'js': 'file',
+                'py': 'file',
+                'html': 'file',
+                'css': 'file',
+                'json': 'file'
+            };
+            
+            return iconMap[extension?.toLowerCase()] || 'file';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function openFileLocation(filePath) {
+            // For now, just show a notification
+            showNotification(`📁 File located at: ${filePath}`, 'info', 3000);
+            // TODO: Implement actual file opening/location showing
+        }
+
+        // Enhanced notification system
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 glass rounded-xl p-4 max-w-sm animate-slide-up ${
+                type === 'success' ? 'border-green-500/30 bg-green-500/10' :
+                type === 'error' ? 'border-red-500/30 bg-red-500/10' :
+                'border-accent-500/30 bg-accent-500/10'
+            }`;
+            
+            const iconMap = {
+                success: '✨',
+                error: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="text-2xl file-icon">
+                        ${iconMap[type]}
+                    </div>
+                    <div class="text-white text-sm font-medium">${message}</div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-nothing-400 hover:text-white transition-colors">
+                        ×
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove with fade out
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // Check API status with enhanced feedback
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                const indicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                
+                if (status.status === 'running') {
+                    indicator.className = 'w-2 h-2 bg-accent-500 rounded-full status-pulse';
+                    if (statusText) statusText.textContent = 'Connected';
+                } else {
+                    indicator.className = 'w-2 h-2 bg-red-500 rounded-full';
+                    if (statusText) statusText.textContent = 'Disconnected';
+                }
+            } catch (error) {
+                const indicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                
+                indicator.className = 'w-2 h-2 bg-red-500 rounded-full';
+                if (statusText) statusText.textContent = 'Error';
+            }
+        }
+
+        // Enhanced connection info update
+        function updateConnectionInfo(connectionInfo) {
+            if (connectionInfo) {
+                const statusText = document.getElementById('status-text');
+                const connectionDetail = document.getElementById('connection-detail');
+                
+                if (statusText) statusText.textContent = connectionInfo.type || 'Connected';
+                if (connectionDetail) connectionDetail.textContent = connectionInfo.status || 'Real-time sync';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            lucide.createIcons();
+            
+            createParticles();
+            checkStatus();
+            showTab('dashboard'); // Start with dashboard
+            
+            // Refresh data every 30 seconds
+            setInterval(() => {
+                checkStatus();
+                if (!document.getElementById('dashboard-content').classList.contains('hidden')) {
+                    fetchStats();
+                }
+            }, 30000);
+        });
+
+        // Enhanced counter with ninja score levels
+        function updateStatCounter(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const currentValue = parseInt(element.textContent) || 0;
+            const increment = Math.ceil((newValue - currentValue) / 20);
+            let count = currentValue;
+            
+            const timer = setInterval(() => {
+                count += increment;
+                if ((increment > 0 && count >= newValue) || (increment < 0 && count <= newValue)) {
+                    count = newValue;
+                    clearInterval(timer);
+                    
+                    // Special ninja score effects
+                    if (elementId === 'ninja-score') {
+                        updateNinjaLevel(newValue);
+                        if (newValue > currentValue) {
+                            triggerScoreAnimation(element);
+                        }
+                    }
+                }
+                element.textContent = count;
+            }, 50);
+        }
+
+        function updateNinjaLevel(score) {
+            const levelElement = document.getElementById('ninja-level');
+            if (!levelElement) return;
+            
+            let level, color;
+            if (score >= 90) { level = 'Master'; color = 'text-yellow-400'; }
+            else if (score >= 70) { level = 'Expert'; color = 'text-purple-400'; }
+            else if (score >= 50) { level = 'Skilled'; color = 'text-blue-400'; }
+            else if (score >= 30) { level = 'Novice'; color = 'text-green-400'; }
+            else { level = 'Apprentice'; color = 'text-gray-400'; }
+            
+            levelElement.textContent = level;
+            levelElement.className = `ninja-level-indicator ${color}`;
+        }
+
+        function triggerScoreAnimation(element) {
+            element.classList.add('animate-pulse');
+            element.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                element.classList.remove('animate-pulse');
+                element.style.transform = 'scale(1)';
+            }, 1000);
+            
+            // Show level up notification
+            showNotification('🥷 Ninja level increased!', 'success');
+        }
+    </script>
+</body>
+</html>
