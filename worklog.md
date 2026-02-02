@@ -196,3 +196,6 @@ considered content delivery networks, origin servers busy; theoretical edge comp
 ## 2026-02-02T11:07:28
 optimized thought processes, runtime unchanged; efficiency in theory.
 
+## 2026-02-02T20:27:39
+debated best practices, practice put on hold; principles before patterns.
+
