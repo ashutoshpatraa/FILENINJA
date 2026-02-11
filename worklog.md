@@ -289,3 +289,6 @@ considered oauth flows, authentication unchanged; theoretical access control.
 ## 2026-02-10T22:09:09
 contemplated clean code principles, mess remains; aspirational development.
 
+## 2026-02-11T09:39:46
+mulled over possibilities, kept options open; decision tree growing.
+
