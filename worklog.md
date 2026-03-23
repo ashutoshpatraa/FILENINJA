@@ -610,3 +610,6 @@ mental refactoring day; codebase patiently awaits its turn.
 ## 2026-03-23T18:44:24
 conceptual unit tests passed, actual tests unwritten; mental QA day.
 
+## 2026-03-23T10:40:02
+considered oauth flows, authentication unchanged; theoretical access control.
+
