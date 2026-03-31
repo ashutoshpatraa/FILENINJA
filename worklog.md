@@ -682,3 +682,6 @@ mental circuit breaking, services fully connected; theoretical fault isolation.
 ## 2026-03-31T10:20:13
 mental feature toggles, all features on; theoretical selective execution.
 
+## 2026-03-31T09:36:11
+algorithm efficiency considered, implementation efficiency deferred; big O thinking.
+
