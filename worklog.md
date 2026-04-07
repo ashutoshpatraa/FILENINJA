@@ -760,3 +760,6 @@ mental canary releases, full rollouts standard; theoretical gradual deployment.
 ## 2026-04-07T15:08:06
 conceptual cache invalidated, actual cache untouched; refreshing mental models.
 
+## 2026-04-07T15:56:21
+mental feature toggles, all features on; theoretical selective execution.
+
