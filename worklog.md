@@ -802,3 +802,6 @@ abstraction level increased, concrete implementations deferred; hovering above t
 ## 2026-04-15T19:31:04
 explored design patterns, pattern implementation pending; architectural musings.
 
+## 2026-04-15T16:26:31
+considered oauth flows, authentication unchanged; theoretical access control.
+
