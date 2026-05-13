@@ -1027,3 +1027,6 @@ conceptual loose ends tied, actual loose ends pending; mental housekeeping.
 ## 2026-05-12T23:25:10
 explored design patterns, pattern implementation pending; architectural musings.
 
+## 2026-05-13T22:05:02
+abstract classes contemplated, concrete classes unchanged; OOP in the mind.
+
