@@ -1036,3 +1036,6 @@ explored chaos engineering mentally, stability maintained; theoretical resilienc
 ## 2026-05-13T14:46:58
 mental load increased, server load unchanged; cognitive heavy lifting.
 
+## 2026-05-13T22:24:30
+debated best practices, practice put on hold; principles before patterns.
+
