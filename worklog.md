@@ -1231,3 +1231,6 @@ mental thread pooling, single-threaded execution continued; concurrency in thoug
 ## 2026-06-03T19:56:39
 conceptual cache invalidated, actual cache untouched; refreshing mental models.
 
+## 2026-06-03T11:55:11
+code smells identified mentally, refactoring todo list grew; awareness phase.
+
